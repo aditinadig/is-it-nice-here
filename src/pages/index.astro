@@ -7,39 +7,34 @@
 	<div id="result"></div>
   
 	<script>
-	  const submitButton = document.getElementById('submitButton');
-	  if (submitButton) {
-		submitButton.addEventListener('click', async () => {
-		const locationInput = document.getElementById('locationInput');
-		if (!locationInput) {
-		  const resultElement = document.getElementById('result');
-		  if (resultElement) {
-			resultElement.innerText = "Error: Location input not found.";
-		  }
+	  document.getElementById('submitButton').addEventListener('click', async () => {
+		const location = document.getElementById('locationInput').value;
+  
+		// Ensure the user entered a location
+		if (!location) {
+		  document.getElementById('result').innerText = 'Error: Location cannot be empty.';
 		  return;
 		}
-		const location = (locationInput as HTMLTextAreaElement).value;
-		const resultElement = document.getElementById('result');
-		if (resultElement) {
-		  resultElement.innerText = "Checking...";
-		}
+  
+		document.getElementById('result').innerText = 'Checking...';
+  
 		try {
-		  const response = await fetch('/api/check', {
+		  const response = await fetch('http://localhost:3000/api/check', {
 			method: 'POST',
-			body: JSON.stringify({ location }),
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ location }), // Ensure location is sent in the request body
 		  });
+  
+		  if (!response.ok) {
+			const error = await response.json();
+			throw new Error(error.error || 'Unknown error occurred');
+		  }
+  
 		  const data = await response.json();
-		  const resultElement = document.getElementById('result');
-		  if (resultElement) {
-			resultElement.innerText = data.result;
-		  }
+		  document.getElementById('result').innerText = data.result;
 		} catch (error) {
-		  const resultElement = document.getElementById('result');
-		  if (resultElement) {
-			resultElement.innerText = "Error: " + (error as any).message;
-		  }
+		  document.getElementById('result').innerText = 'Error: ' + error.message;
 		}
-		});
-	  }
+	  });
 	</script>
   </main>
