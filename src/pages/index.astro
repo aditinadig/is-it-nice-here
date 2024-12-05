@@ -1,9 +1,8 @@
 ---
-// No server-side imports needed yet
 ---
 <main>
 	<h1>Is It Nice Here?</h1>
-	<textarea id="locationInput" placeholder="Enter a location"></textarea>
+	<textarea id="locationInput" placeholder="Enter a location (e.g., Chicago)"></textarea>
 	<button id="submitButton">Check</button>
 	<div id="result"></div>
   
@@ -11,11 +10,22 @@
 	  const submitButton = document.getElementById('submitButton');
 	  if (submitButton) {
 		submitButton.addEventListener('click', async () => {
-		  const locationInput = document.getElementById('locationInput');
-		  const location = locationInput ? (locationInput as HTMLTextAreaElement).value : '';
+		const locationInput = document.getElementById('locationInput');
+		if (!locationInput) {
+		  const resultElement = document.getElementById('result');
+		  if (resultElement) {
+			resultElement.innerText = "Error: Location input not found.";
+		  }
+		  return;
+		}
+		const location = (locationInput as HTMLTextAreaElement).value;
+		const resultElement = document.getElementById('result');
+		if (resultElement) {
+		  resultElement.innerText = "Checking...";
+		}
+		try {
 		  const response = await fetch('/api/check', {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ location }),
 		  });
 		  const data = await response.json();
@@ -23,6 +33,12 @@
 		  if (resultElement) {
 			resultElement.innerText = data.result;
 		  }
+		} catch (error) {
+		  const resultElement = document.getElementById('result');
+		  if (resultElement) {
+			resultElement.innerText = "Error: " + (error as any).message;
+		  }
+		}
 		});
 	  }
 	</script>
